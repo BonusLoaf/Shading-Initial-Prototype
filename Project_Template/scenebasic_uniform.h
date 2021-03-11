@@ -10,6 +10,7 @@
 #include "helper/plane.h"
 #include "helper/cube.h"
 #include "helper/objmesh.h"
+#include "helper/skybox.h"
 #include <glm/glm.hpp>
 
 class SceneBasic_Uniform : public Scene
@@ -20,12 +21,17 @@ private:
 
     GLSLProgram prog;
 
-    
+    float angle, tPrev, rotSpeed;
+
+    SkyBox sky;
+
     Cube cube;
 
-    Plane plane;
+    //Plane plane;
 
-    std::unique_ptr<ObjMesh> mesh;
+    std::unique_ptr<ObjMesh> pyramid;
+
+    std::unique_ptr<ObjMesh> staff;
 
     void setMatrices();
 
