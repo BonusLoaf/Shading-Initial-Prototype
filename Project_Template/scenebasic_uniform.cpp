@@ -29,7 +29,7 @@ float x, z;
 
 SceneBasic_Uniform::SceneBasic_Uniform() : angle(0.0f), tPrev(0.0f), rotSpeed(glm::pi<float>() / 18.0f), sky(100.0f)
 {
-    pyramid = ObjMesh::load("../Project_Template/media/pyramid-simple-design.obj", true);
+    pyramid = ObjMesh::load("../Project_Template/media/pyr.obj", false, true);
     staff = ObjMesh::load("../Project_Template/media/staff.obj", true);
 }
 
@@ -40,13 +40,14 @@ void SceneBasic_Uniform::initScene()
 
     glEnable(GL_DEPTH_TEST);
 
-    projection = mat4(1.0f);
+    //projection = mat4(1.0f);
     angle = glm::radians(90.0f);
 
     view = glm::lookAt(vec3(0.5f, 0.75f, 0.75f), vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 1.0f, 0.0f));
     projection = mat4(1.0f);
     
     
+    //ADD SPOTLIGHT ONTO PROJECTED TEXTURE
 
 
     prog.setUniform("lights.Position",(view * glm::vec4(x, 0.5f, 5.0f, 0.0f)));
@@ -64,6 +65,8 @@ void SceneBasic_Uniform::initScene()
 
     GLuint staff = Texture::loadTexture("../Project_Template/media/texture/red.png");
 
+    GLuint normalMap = Texture::loadTexture("../Project_Template/media/texture/normalMap.png");
+
 
     // Load brick texture file into channel 0
     glActiveTexture(GL_TEXTURE0);
@@ -72,11 +75,15 @@ void SceneBasic_Uniform::initScene()
     // Load texture file into channel 1
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, pyBricks);
+   
 
     // Load texture file into channel 2
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, staff);
 
+    // Load texture file into channel 3
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, normalMap);
    
 
 
@@ -114,14 +121,7 @@ void SceneBasic_Uniform::update( float t )
 void SceneBasic_Uniform::render()
 {
 
-
-
-
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
    
     prog.setUniform("texID", 1);
     prog.setUniform("Material.Kd", 0.4f, 0.4f, 0.4f);
@@ -129,9 +129,9 @@ void SceneBasic_Uniform::render()
     prog.setUniform("Material.Ka", 0.5f, 0.5f, 0.5f);
     prog.setUniform("Material.Shininess", 20.0f);
     model = mat4(1.0f);
-    model = glm::translate(model, vec3(0.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(0.0f, -1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(0.2f, 0.1f, 0.2f));
+    model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
     setMatrices();
     pyramid->render();
 
@@ -142,18 +142,20 @@ void SceneBasic_Uniform::render()
     prog.setUniform("Material.Ka", 0.5f, 0.5f, 0.5f);
     prog.setUniform("Material.Shininess", 180.0f);
     model = mat4(1.0f);
-    model = glm::translate(model, vec3(1.0f, 0.0f, 0.0f));
+    model = glm::translate(model, vec3(4.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
+    model = glm::scale(model, glm::vec3(15.0f, 12.0f, 15.0f));
     setMatrices();
     staff->render();
 
 
-
-    prog.setUniform("texID", 0);
+    
+   prog.setUniform("texID", 0);
     vec3 cameraPos = vec3(7.0f * cos(angle), 2.0f, 7.0f * sin(angle));
     view = glm::lookAt(cameraPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f,
         0.0f));
+    
+    
     // Draw sky
     prog.use();
     model = mat4(1.0f);
