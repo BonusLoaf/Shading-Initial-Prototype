@@ -30,11 +30,16 @@ layout(binding=0) uniform samplerCube SkyBoxTex;
 layout(binding=1) uniform sampler2D PyTex;
 layout(binding=2) uniform sampler2D StaffTex;
 layout(binding=3) uniform sampler2D NormalMapTex;
+layout(binding=4) uniform sampler2D DirtTex;
 layout (location = 0) out vec4 FragColor;
 
 in vec2 TexCoord;
 
 vec3 TexColor = texture(PyTex, TexCoord).rgb;
+
+vec4 TexPyramid = texture(PyTex, TexCoord);
+
+vec4 TexOverlay = texture(DirtTex, TexCoord);
 
 vec3 blinnPhongModelWithNormal(vec3 LightDir, vec3 normal)
 {
@@ -42,14 +47,9 @@ vec3 blinnPhongModelWithNormal(vec3 LightDir, vec3 normal)
 if(texID > 0)
 {
 
-if(texID == 1)
-{
-TexColor = texture(PyTex, TexCoord).rgb;
-}
-else
-{
 
-}
+TexColor = mix(TexPyramid.rgb, TexOverlay.rgb, TexOverlay.a);
+
 
 //Ambient
 vec3 ambient = lights.La * TexColor;

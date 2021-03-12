@@ -67,6 +67,8 @@ void SceneBasic_Uniform::initScene()
 
     GLuint normalMap = Texture::loadTexture("../Project_Template/media/texture/normalMap.png");
 
+    GLuint dirt = Texture::loadTexture("../Project_Template/media/texture/dirt.png");
+
 
     // Load brick texture file into channel 0
     glActiveTexture(GL_TEXTURE0);
@@ -85,7 +87,9 @@ void SceneBasic_Uniform::initScene()
     glActiveTexture(GL_TEXTURE3);
     glBindTexture(GL_TEXTURE_2D, normalMap);
    
-
+    // Load texture file into channel 4
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, dirt);
 
 }
 
@@ -124,10 +128,10 @@ void SceneBasic_Uniform::render()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    
     prog.setUniform("texID", 1);
-    prog.setUniform("Material.Kd", 0.4f, 0.4f, 0.4f);
-    prog.setUniform("Material.Ks", 0.9f, 0.7f, 0.5f);
-    prog.setUniform("Material.Ka", 0.5f, 0.5f, 0.5f);
-    prog.setUniform("Material.Shininess", 20.0f);
+    prog.setUniform("Material.Kd", 0.8f, 0.8f, 0.8f);
+    prog.setUniform("Material.Ks", 0.2f, 0.2f, 0.2f);
+    prog.setUniform("Material.Ka", 0.2f, 0.2f, 0.2f);
+    prog.setUniform("Material.Shininess", 5.0f);
     model = mat4(1.0f);
     model = glm::translate(model, vec3(0.0f, -1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(90.0f), vec3(0.0f, 1.0f, 0.0f));

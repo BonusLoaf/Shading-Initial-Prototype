@@ -25,10 +25,20 @@ vec3 La;
 vec3 L;
 }Light;
 
+vec3 EyeNormal;
+vec4 EyePosition; 
+vec4 ProjTexCoord;
 
-
+mat4 ProjectorMatrix;
+mat4 ModelMatrix;
 
 void main() { 
+
+//Projected Texture
+vec4 pos4 = vec4(VertexPosition, 1.0);
+EyeNormal = normalize(NormalMatrix * VertexNormal);
+
+
 
 
  //Convert normal and tangent to eye space
