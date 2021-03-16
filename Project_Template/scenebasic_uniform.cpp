@@ -16,7 +16,9 @@ using std::endl;
 
 #include <glm/gtc/matrix_transform.hpp>
 using glm::vec3;
+using glm::vec4;
 using glm::mat4;
+using glm::mat3;
 
 #include "helper/glutils.h"
 
@@ -47,14 +49,18 @@ void SceneBasic_Uniform::initScene()
     projection = mat4(1.0f);
     
     
-    //ADD SPOTLIGHT ONTO PROJECTED TEXTURE
+    //ADD SPOTLIGHT
+    prog.setUniform("Spot.L", vec3(1.0f, 0.0f, 0.3f));
+    prog.setUniform("Spot.La", vec3(1.0f));
+    prog.setUniform("Spot.Exponent", 50.0f);
+    prog.setUniform("Spot.Cutoff", glm::radians(2.0f));
 
 
-    prog.setUniform("lights.Position",(view * glm::vec4(x, 0.5f, 5.0f, 0.0f)));
+    prog.setUniform("lights.Position",(view * glm::vec4(x, 5.0f, 0.0, 0.0f)));
 
-    prog.setUniform("lights.L", vec3(0.8f));
+    prog.setUniform("lights.L", vec3(0.9f));
 
-    prog.setUniform("lights.La", vec3(1.0f,0.8f,0.6f));
+    prog.setUniform("lights.La", vec3(0.5f, 0.2f, 0.1f));
 
 
 
@@ -68,6 +74,7 @@ void SceneBasic_Uniform::initScene()
     GLuint normalMap = Texture::loadTexture("../Project_Template/media/texture/normalMap.png");
 
     GLuint dirt = Texture::loadTexture("../Project_Template/media/texture/dirt.png");
+
 
 
     // Load brick texture file into channel 0
@@ -90,6 +97,9 @@ void SceneBasic_Uniform::initScene()
     // Load texture file into channel 4
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, dirt);
+
+   
+
 
 }
 
@@ -127,6 +137,12 @@ void SceneBasic_Uniform::render()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    
+    vec4 lightPos = vec4(15.0f, 15.0f, 0.0f, 1.0f);
+    prog.setUniform("Spot.Position", vec3(view * lightPos));
+    mat3 normalMatrix = mat3(vec3(view[0]), vec3(view[1]), vec3(view[2]));
+    prog.setUniform("Spot.Direction", normalMatrix * vec3(-lightPos));
+
+
     prog.setUniform("texID", 1);
     prog.setUniform("Material.Kd", 0.8f, 0.8f, 0.8f);
     prog.setUniform("Material.Ks", 0.2f, 0.2f, 0.2f);
@@ -148,7 +164,7 @@ void SceneBasic_Uniform::render()
     model = mat4(1.0f);
     model = glm::translate(model, vec3(4.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(90.0f), vec3(0.0f, 1.0f, 0.0f));
-    model = glm::scale(model, glm::vec3(15.0f, 12.0f, 15.0f));
+    model = glm::scale(model, glm::vec3(25.0f, 12.0f, 25.0f));
     setMatrices();
     staff->render();
 

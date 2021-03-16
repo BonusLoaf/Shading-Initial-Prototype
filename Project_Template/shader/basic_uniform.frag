@@ -26,6 +26,17 @@ vec3 Ks;
 float Shininess;
 }Material;
 
+
+
+uniform struct SpotLightInfo {
+vec3 Position; // Position in cam coords
+vec3 L; // Diffuse/spec intensity
+vec3 La; // Amb intensity
+vec3 Direction; // Direction of the spotlight in cam coords.
+float Exponent; // Angular attenuation exponent
+float Cutoff; // Cutoff angle (between 0 and pi/2)
+} Spot;
+
 layout(binding=0) uniform samplerCube SkyBoxTex;
 layout(binding=1) uniform sampler2D PyTex;
 layout(binding=2) uniform sampler2D StaffTex;
@@ -102,6 +113,52 @@ return vec3(1.0f);
 
 }
 
+vec3 blinnPhongSpot( vec3 position, vec3 n ) {
+
+
+
+//Ambient
+vec3 ambient = Spot.La * Material.Ka;
+
+
+
+//Diffuse
+vec3 s = normalize(vec3(Spot.Position) - position);
+
+float cosAng = dot(-s, normalize(Spot.Direction));
+
+float angle = acos(cosAng);
+
+float spotScale = 0.0f;
+
+vec3 diffuse = vec3(0.0);
+
+vec3 specular = vec3(0.0);
+
+
+if(angle < Spot.Cutoff)
+{
+
+spotScale = pow(cosAng, Spot.Exponent);
+float sDotN = dot(s,n);
+
+vec3 diffuse = Material.Kd * sDotN;
+
+if(sDotN > 0.0)
+{
+vec3 v = normalize(-position.xyz);
+vec3 h = normalize(v+s);
+specular = Material.Ks * pow(max(dot(h,n),0.0),Material.Shininess);
+
+}
+return ambient + spotScale * Spot.L * (diffuse + specular);
+}
+
+
+return ambient + spotScale * Spot.L * (diffuse + specular);
+
+}
+
 
 vec3 blinnPhongModel(vec3 position, vec3 normal)
 {
@@ -172,7 +229,10 @@ if(texID == 1)
 //unpack the normal and set it to a range between 0 and 1
 vec3 norm = texture(NormalMapTex, TexCoord).xyz;
 norm.xy = 2.0 * norm.xy - 1.0f;
-    FragColor = vec4 (blinnPhongModelWithNormal(LightDir, normalize(norm)),1.0);
+
+vec3 fullLightModel = blinnPhongSpot(Position, normalize(Normal)) + blinnPhongModelWithNormal(LightDir, normalize(norm));
+
+    FragColor = vec4(fullLightModel,1.0);
 }
 else
 {
