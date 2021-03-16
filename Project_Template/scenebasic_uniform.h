@@ -7,8 +7,6 @@
 #include "helper/glslprogram.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "helper/plane.h"
-#include "helper/cube.h"
 #include "helper/objmesh.h"
 #include "helper/skybox.h"
 #include <glm/glm.hpp>
@@ -25,9 +23,6 @@ private:
 
     SkyBox sky;
 
-    Cube cube;
-
-    //Plane plane;
 
     std::unique_ptr<ObjMesh> pyramid;
 

@@ -31,8 +31,8 @@ float x, z;
 
 SceneBasic_Uniform::SceneBasic_Uniform() : angle(0.0f), tPrev(0.0f), rotSpeed(glm::pi<float>() / 18.0f), sky(100.0f)
 {
-    pyramid = ObjMesh::load("../Project_Template/media/pyr.obj", false, true);
-    staff = ObjMesh::load("../Project_Template/media/staff.obj", true);
+    pyramid = ObjMesh::load("media/pyr.obj", false, true);
+    staff = ObjMesh::load("media/staff.obj", true);
 }
 
 void SceneBasic_Uniform::initScene()
@@ -42,7 +42,6 @@ void SceneBasic_Uniform::initScene()
 
     glEnable(GL_DEPTH_TEST);
 
-    //projection = mat4(1.0f);
     angle = glm::radians(90.0f);
 
     view = glm::lookAt(vec3(0.5f, 0.75f, 0.75f), vec3(0.0f, 0.0f, 0.0f),vec3(0.0f, 1.0f, 0.0f));
@@ -55,25 +54,26 @@ void SceneBasic_Uniform::initScene()
     prog.setUniform("Spot.Exponent", 50.0f);
     prog.setUniform("Spot.Cutoff", glm::radians(2.0f));
 
+    //Add point light
+    prog.setUniform("Light.Position",(view * glm::vec4(x, 5.0f, 0.0, 0.0f)));
 
-    prog.setUniform("lights.Position",(view * glm::vec4(x, 5.0f, 0.0, 0.0f)));
+    prog.setUniform("Light.L", vec3(0.9f));
 
-    prog.setUniform("lights.L", vec3(0.9f));
-
-    prog.setUniform("lights.La", vec3(0.5f, 0.2f, 0.1f));
-
-
+    prog.setUniform("Light.La", vec3(0.5f, 0.2f, 0.1f));
 
 
-    GLuint skybox = Texture::loadCubeMap("../Project_Template/media/skybox/sand", ".png");
 
-    GLuint pyBricks = Texture::loadTexture("../Project_Template/media/texture/bricks.jpg");
 
-    GLuint staff = Texture::loadTexture("../Project_Template/media/texture/red.png");
+    //Locate all textures
+    GLuint skybox = Texture::loadCubeMap("media/skybox/sand", ".png");
 
-    GLuint normalMap = Texture::loadTexture("../Project_Template/media/texture/normalMap.png");
+    GLuint pyBricks = Texture::loadTexture("media/texture/bricks.jpg");
 
-    GLuint dirt = Texture::loadTexture("../Project_Template/media/texture/dirt.png");
+    GLuint staff = Texture::loadTexture("media/texture/red.png");
+
+    GLuint normalMap = Texture::loadTexture("media/texture/normalMap.png");
+
+    GLuint dirt = Texture::loadTexture("media/texture/dirt.png");
 
 
 
@@ -137,12 +137,13 @@ void SceneBasic_Uniform::render()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    
+    //Set parameters for spotlight
     vec4 lightPos = vec4(15.0f, 15.0f, 0.0f, 1.0f);
     prog.setUniform("Spot.Position", vec3(view * lightPos));
     mat3 normalMatrix = mat3(vec3(view[0]), vec3(view[1]), vec3(view[2]));
     prog.setUniform("Spot.Direction", normalMatrix * vec3(-lightPos));
 
-
+    //Sets parameters for model and renders them
     prog.setUniform("texID", 1);
     prog.setUniform("Material.Kd", 0.8f, 0.8f, 0.8f);
     prog.setUniform("Material.Ks", 0.2f, 0.2f, 0.2f);
@@ -155,7 +156,8 @@ void SceneBasic_Uniform::render()
     setMatrices();
     pyramid->render();
 
-
+    //Sets parameters for model and renders them
+    //Also Changes texID to choose a different texture
     prog.setUniform("texID", 2);
     prog.setUniform("Material.Kd", 0.4f, 0.4f, 0.4f);
     prog.setUniform("Material.Ks", 0.9f, 0.9f, 0.9f);
@@ -170,28 +172,22 @@ void SceneBasic_Uniform::render()
 
 
     
+
+    //Sets parameters for skybox and renders it
    prog.setUniform("texID", 0);
     vec3 cameraPos = vec3(7.0f * cos(angle), 2.0f, 7.0f * sin(angle));
     view = glm::lookAt(cameraPos, vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f,
         0.0f));
     
     
-    // Draw sky
+    
     prog.use();
     model = mat4(1.0f);
     setMatrices();
     sky.render();
 
 
-    /*prog.setUniform("py", false);
-    prog.setUniform("Material.Kd", 0.1f, 0.1f, 0.1f);
-    prog.setUniform("Material.Ks", 0.9f, 0.9f, 0.9f);
-    prog.setUniform("Material.Ka", 0.1f, 0.1f, 0.1f);
-    prog.setUniform("Material.Shininess", 180.0f);
-    model = mat4(1.0f);
-    model = glm::translate(model, vec3(0.0f));
-    setMatrices();
-    sky.render();*/
+   
     
 
 }
@@ -200,8 +196,6 @@ void SceneBasic_Uniform::setMatrices()
 {
     mat4 mv;
     mv = view * model;
-    
-    
 
     prog.setUniform("ModelViewMatrix", mv);
     prog.setUniform("NormalMatrix", glm::mat3(vec3(mv[0]),vec3(mv[1]), vec3(mv[2])));

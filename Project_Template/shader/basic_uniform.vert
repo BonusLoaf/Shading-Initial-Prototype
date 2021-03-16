@@ -18,12 +18,15 @@ out vec3 LightDir;
 out vec3 ViewDir;
 
 
+
 uniform struct lightInfo
 {
 vec4 Position;
 vec3 La;
 vec3 L;
-}Light;
+}light;
+
+
 
 
 
@@ -32,32 +35,31 @@ void main() {
 
 
 
+//Convert normal and position to eye space
+Normal = normalize( NormalMatrix * VertexNormal);
+Position = (ModelViewMatrix * vec4(VertexPosition,1.0)).xyz;
+gl_Position = MVP * vec4(VertexPosition,1.0);
 
-
-
- //Convert normal and tangent to eye space
-vec3 norm = normalize( NormalMatrix * VertexNormal );
+//Convert tangent to eye space
 vec3 tang = normalize( NormalMatrix * vec3(VertexTangent) );
 
-//Compute the binormal
-vec3 binormal = normalize( cross( norm, tang ) ) * VertexTangent.w;
+//Calculate binormal
+vec3 binormal = normalize( cross( Normal, tang ) ) * VertexTangent.w;
 
 // Matrix for transformation to tangent space
-mat3 toObjectLocal = mat3(tang.x, binormal.x, norm.x, tang.y, binormal.y, norm.y, tang.z, binormal.z, norm.z);
+mat3 toObjectLocal = mat3(tang.x, binormal.x, Normal.x, tang.y, binormal.y, Normal.y, tang.z, binormal.z, Normal.z);
 
 
-//Transform light direction and view to tangent space
+//Convert light direction and view to tangent space
 vec3 pos = vec3(ModelViewMatrix * vec4(VertexPosition, 1.0));
-LightDir = toObjectLocal * (Light.Position.xyz - pos);
+LightDir = toObjectLocal * (light.Position.xyz - pos);
 ViewDir = toObjectLocal * normalize(-pos);
 
 
+//Vertex position for normal map
 Vec = VertexPosition;
 
-Normal = normalize( NormalMatrix * VertexNormal);
- Position = (ModelViewMatrix * vec4(VertexPosition,1.0)).xyz;
- gl_Position = MVP * vec4(VertexPosition,1.0);
-
- TexCoord = VertexTexCoord;
+//Texture coordinates for setting texture
+TexCoord = VertexTexCoord;
  
 }
